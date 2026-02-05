@@ -1,0 +1,14 @@
+service: punjaci
+frameworkVersion: "3"
+
+plugins:
+  - serverless-localstack
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  environment:
+    OCM_API_KEY: '69d86e58-df21-406b-b837-cc07c35ddd41'
+    OCM_URL: 'https://api.openchargemap.io/v3/poi'
+    CHARGERS_TABLE: Chargers
