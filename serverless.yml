@@ -93,3 +93,36 @@ resources:
                     - logs:CreateLogStream
                     - logs:PutLogEvents
                   Resource: "*"   
+
+    GetChargersByTownRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: getChargersByTown-role-${sls:stage}
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: lambda.amazonaws.com
+              Action: sts:AssumeRole
+        Policies:
+          - PolicyName: DynamoDBReadAccess
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - dynamodb:Query
+                  Resource:
+                    - !GetAtt ChargersTable.Arn
+                    - !Join ['/', [!GetAtt ChargersTable.Arn, 'index/*']]
+          - PolicyName: CloudWatchLogs
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource: "*"    
