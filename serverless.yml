@@ -56,5 +56,40 @@ resources:
               Principal: "*"
               Action: s3:GetObject
               Resource: !Join ["", ["arn:aws:s3:::", !Ref WebsiteBucket, "/*"]] 
-              
-                 
+
+    SyncOCMDataRole:
+      Type: AWS::IAM::Role              # CloudFormation tip - IAM rola
+      Properties:
+        RoleName: syncOCMdata-role-${sls:stage}     # Ime role vidljivo u LocalStack/AWS konzoli
+        AssumeRolePolicyDocument:       # Trust policy - ko može preuzeti ovu rolu
+          Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service: lambda.amazonaws.com  # Lambda servis može preuzeti rolu
+              Action: sts:AssumeRole
+        Policies:                       # Inline polise priključene roli
+          - PolicyName: DynamoDBAccess    # Polisa za pristup DynamoDB
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow         # Dozvoli DynamoDB operacije
+                  Action:
+                    - dynamodb:PutItem
+                    - dynamodb:BatchWriteItem
+                    - dynamodb:Scan
+                    - dynamodb:Query
+                    - dynamodb:DeleteItem
+                  Resource:
+                    - !GetAtt ChargersTable.Arn                              # ARN tabele
+                    - !Join ['/', [!GetAtt ChargersTable.Arn, 'index/*']]    # ARN indeksa
+          - PolicyName: CloudWatchLogs    # Polisa za Lambda logove
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource: "*"   
