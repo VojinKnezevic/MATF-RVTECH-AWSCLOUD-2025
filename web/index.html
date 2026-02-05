@@ -133,5 +133,62 @@
       Podaci: <a href="https://openchargemap.org" target="_blank" style="color: #667eea;">Open Charge Map</a> | 
       LocalStack Demo
     </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+      // Inicijalizuj mapu (centrirana na Srbiju)
+      const map = L.map('map').setView([44.0165, 21.0059], 7);
+
+      // Dodaj OpenStreetMap tile layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Grupa za markere
+      let markersLayer = L.layerGroup().addTo(map);
+
+      // Funkcija za prikaz punjača na mapi
+      function displayChargers(chargers) {
+        // Obriši postojeće markere
+        markersLayer.clearLayers();
+
+        if (chargers.length === 0) {
+          document.getElementById('status').textContent = 'Nema punjača za ovaj grad';
+          return;
+        }
+
+        const bounds = [];
+
+        chargers.forEach(charger => {
+          if (charger.latitude && charger.longitude) {
+            const marker = L.marker([charger.latitude, charger.longitude])
+              .addTo(markersLayer);
+
+            // Popup sa detaljima
+            const popupContent = `
+              <div class="charger-popup">
+                <h3>${charger.title || 'EV Punjač'}</h3>
+                <p><span class="label">Adresa:</span> ${charger.addressLine1 || 'N/A'}</p>
+                <p><span class="label">Grad:</span> ${charger.town} ${charger.postcode ? `(${charger.postcode})` : ''}</p>
+                <p><span class="label">Broj priključaka:</span> ${charger.numberOfPoints || 'N/A'}</p>
+                <p><span class="label">Verifikovan:</span> ${charger.isRecentlyVerified ? 'Da ✓' : 'Ne'}</p>
+                <p><span class="label">ID:</span> ${charger.chargerId}</p>
+              </div>
+            `;
+            marker.bindPopup(popupContent);
+
+            bounds.push([charger.latitude, charger.longitude]);
+          }
+        });
+
+        // Zumiraj mapu da prikaže sve markere
+        if (bounds.length > 0) {
+          map.fitBounds(bounds, { padding: [50, 50] });
+        }
+
+        document.getElementById('status').textContent = `Prikazano ${chargers.length} punjača`;
+      }
+    </script>
   </body>
 </html>
