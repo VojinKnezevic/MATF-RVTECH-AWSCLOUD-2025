@@ -217,6 +217,52 @@
           searchBtn.textContent = 'Pretraži';
         }
       }
+
+      // Ovo je više za demonstraciju poziva Lambde koja ažurira DynamoDB tabelu punjača
+      async function syncOCM() {
+        const status = document.getElementById('status');
+        const syncBtn = document.getElementById('syncBtn');
+
+        syncBtn.disabled = true;
+        syncBtn.textContent = 'Sinhronizacija...';
+        status.textContent = 'Sinhronizacija sa OCM...';
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/sync`); // Ovo je endpoint za Lambda funkciju koja ažurira DynamoDB tabelu punjača
+          const data = await response.json();
+          status.textContent = `Sync završen! Upisano: ${data.count}, Obrisano: ${data.deleted}`;
+          console.log('Sync rezultat:', data);
+        } catch (error) {
+          status.textContent = 'Sync greška: ' + error.message;
+          console.error(error);
+        } finally {
+          syncBtn.disabled = false;
+          syncBtn.textContent = 'Sync OCM';
+        }
+      }
+
+      // Event listeneri
+      document.getElementById('searchBtn').addEventListener('click', () => {
+        const town = document.getElementById('townInput').value.trim();
+        if (town) {
+          searchChargers(town);
+        }
+      });
+
+      document.getElementById('townInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          const town = document.getElementById('townInput').value.trim();
+          if (town) {
+            searchChargers(town);
+          }
+        }
+      });
+
+      document.getElementById('syncBtn').addEventListener('click', syncOCM);
+
+      // Automatski učitaj Belgrade punjače na startu
+      // searchChargers('Belgrade');
+    
     </script>
   </body>
 </html>
