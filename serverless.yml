@@ -12,3 +12,26 @@ provider:
     OCM_API_KEY: '69d86e58-df21-406b-b837-cc07c35ddd41'
     OCM_URL: 'https://api.openchargemap.io/v3/poi'
     CHARGERS_TABLE: Chargers
+
+resources:
+  Resources:
+    ChargersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.CHARGERS_TABLE}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: chargerId
+            AttributeType: S
+          - AttributeName: town
+            AttributeType: S
+        KeySchema:
+          - AttributeName: chargerId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: TownIndex
+            KeySchema:
+              - AttributeName: town
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
