@@ -189,6 +189,34 @@
 
         document.getElementById('status').textContent = `Prikazano ${chargers.length} punjača`;
       }
+
+      // Pretraga punjača po gradu
+      async function searchChargers(town) {
+        const status = document.getElementById('status');
+        const searchBtn = document.getElementById('searchBtn');
+
+        searchBtn.disabled = true;
+        searchBtn.textContent = 'Učitavanje...';
+        status.textContent = 'Pretraga...';
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/chargers/${encodeURIComponent(town)}`);
+          const data = await response.json();
+
+          if (response.ok) {
+            displayChargers(data.chargers);
+            console.log('Podaci:', data);
+          } else {
+            status.textContent = 'Greška: ' + (data.error || 'Nepoznata greška');
+          }
+        } catch (error) {
+          status.textContent = 'Greška: ' + error.message;
+          console.error(error);
+        } finally {
+          searchBtn.disabled = false;
+          searchBtn.textContent = 'Pretraži';
+        }
+      }
     </script>
   </body>
 </html>
