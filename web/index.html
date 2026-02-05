@@ -137,16 +137,29 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+      // KONFIGURACIJA - promeni API_ID ako treba
+      // Dobij sa: awslocal apigateway get-rest-apis --query 'items[0].id' --output text
+      const API_ID = 'tilbocj5ak';
+      const API_BASE_URL = `http://localhost:4566/restapis/${API_ID}/dev/_user_request_`;
+      
       // Inicijalizuj mapu (centrirana na Srbiju)
       const map = L.map('map').setView([44.0165, 21.0059], 7);
-
+      
       // Dodaj OpenStreetMap tile layer
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
 
-      // Grupa za markere
+      // Grupa za markere (da možemo lako obrisati sve)
       let markersLayer = L.layerGroup().addTo(map);
+
+      // Custom ikona za punjač
+      const chargerIcon = L.divIcon({
+        html: '⚡',
+        className: 'charger-marker',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+      });
 
       // Funkcija za prikaz punjača na mapi
       function displayChargers(chargers) {
@@ -262,7 +275,6 @@
 
       // Automatski učitaj Belgrade punjače na startu
       // searchChargers('Belgrade');
-    
     </script>
   </body>
 </html>
